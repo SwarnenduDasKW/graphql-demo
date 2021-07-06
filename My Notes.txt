@@ -1,6 +1,116 @@
+A DATA QUERY LANGUAGE AND RUNTIME - Official Definition
+
+Something that you put between client and server. When client needs data from two or more services then building a GraphQL layer is important. Becuase in that way the client donot need to know all the apis. The only api the client will see is the graphql api.
+
+graphql is a data agent. 
+
 Strong typed
 Graph based structure
 Declarative
 
+Regular APIs overfetch information that they don't necessarily need. By querying graphql api you can pull whatever information you need. When a graphql query is executed it returns a json object where every key in the answer matches the request query.
 
-Regular APIs overfetch information that they don't necessarily need
+
+Language:-
+  Query       
+  Mutation    
+  Subscription 
+  Fragments
+  
+ Runtime:-
+  Validation
+  Type System
+  Introspection
+  Execution
+  
+To describe both queries and mutations we can use the generic term Operation. A graphql operation is a simple string with optional variables
+variable: {body: "Great"}
+variables make the query reusable for diffrent inputs.
+ 
+The graphql operations are written in documents on the client site and then use an interface to send this documents to a graphql client server. Http is a popular interface   option /graphql ?query=.... &variables= ... 
+http is one of the options. you can use sockets, ssh, cli etc. graphql doesn't have any preference on any communication protocol. graphql doesn't deport of http verbs or status codes like other apis.
+ 
+a graphql document can contain more than one operations. In that case you need to tell graphql which operation to execute. 
+/graphsql ? query=... &operatioName = ...
+ 
+The graphql runtime translates the documents to a language that the data service can understand. The graphql runtime can be added to any existing data service or multiple data services. The data services will prepare the data and hand it to the graphql engine to send it back to the client.
+The runtime layer can be written in any language. 
+
+This approach decouples clients from the server and allows then to scale independently 
+
+THE GRAPHQL SCHEMA
+Every field in the schema has a type. It can be scalar or objects or array of objects. every field has a resolver function which can be mapped to its read logic.
+
+What happens when a graphql request is made
+  read input from an interface
+  parse query into AST abstract syntax tree
+  for every node in the tree the server invokes the resolver function. The resolver function can either return a scalar value or object or objects who have their own resolver function
+  resolver functions for children nodes. It will be processed in the tree order
+  ask data services
+  data resolved from the resolver functions will be merged to a single object
+  send response as json
+  
+GraphiQL Playground
+  https://graphql.org/swapi-graphql
+  https://api.spacex.land/graphql/
+  https://developer.github.com/v4/explorer/
+  https://rickandmortyapi.com/graphql
+  https://www.onegraph.com/graphiql
+  
+LANGUAGE FEATURES  
+  query TestQuery {
+    ctrl + space --> will list all the fields available
+    
+  
+  
+  }
+  
+  apaces, commas and new lines are all optional in a graphql query
+  
+  FIELDS
+    can be scalar or complex. the complex fields are modeled after functions.  
+  
+  VARIABLES
+    query getRocket($rocketId: ID!) {
+    rocket(id: $rocketId ) {
+      id
+      name
+      active
+      boosters
+      company
+      cost_per_launch
+      country
+    }
+  }
+
+  {
+  "rocketId": "falcon1"
+  }
+  
+  DIRECTIVES
+    @skip
+    @include
+    can be used on fields and fragments
+    
+    While testing on spacex playgound I got "Unknown directive \"@include\"."
+    It was a version problem of the graphql-tools. Checking the node_modules/graphql-tools/package.json file I observed that I was using version 4. I found here that version 4       had problems with the directives and the use of version 5 was recommended. This is what I did:
+
+    npm i graphql-tools@5.0.0
+    I restarted the server and refresh the Playground page and voila, I already have the @include directive and all the others available.
+  
+  ALIASES
+  
+  FRAGMENTS
+  
+  INLINE FRAGMENTS
+  
+  MUTATIONS
+  
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
