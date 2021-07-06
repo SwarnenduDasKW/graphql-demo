@@ -1,0 +1,6 @@
+Strong typed
+Graph based structure
+Declarative
+
+
+Regular APIs overfetch information that they don't necessarily need
