@@ -58,7 +58,7 @@ GraphiQL Playground
   https://www.onegraph.com/graphiql
   
 LANGUAGE FEATURES  
-  query TestQuery {
+  query TestQuery { --> selection set
     ctrl + space --> will list all the fields available
     
   
@@ -99,16 +99,140 @@ LANGUAGE FEATURES
     I restarted the server and refresh the Playground page and voila, I already have the @include directive and all the others available.
   
   ALIASES
-  
+    use alias if client wants a different name than what returned from the server. Use alias on any field to customize its apprearance in the response.
+    
+    query getRocket($rocketId: ID!) {
+      rocket (id: $rocketId ) {
+      id 
+      RocketName: name  
+      active
+      boosters
+      company
+      cost_per_launch
+      country
+      }
+    }
+    
+    query getRocket($rocketId1: ID!, $rocketId2: ID!) {
+      rocket1: rocket (id: $rocketId1 ) {
+        id 
+        RocketName: name  
+        active
+        boosters
+        company
+        cost_per_launch
+        country
+      },
+      rocket2: rocket (id: $rocketId2 ) {
+        id 
+        RocketName: name  
+        active
+        boosters
+        company
+        cost_per_launch
+        country
+      }
+    }
+
+    variables
+    {
+      "rocketId1": "falcon1",
+      "rocketId2": "falcon9"
+    }
+
   FRAGMENTS
+    it makes graphql composable and reusable. use the spread operator in the query. reusability is just one aspect of fragments. the real benefit is in composition.
+    To know more about this study Relay
+    
+    it can't be used on its own. the above query can be shortened like so.
+    
+    query getRocket($rocketId1: ID!, $rocketId2: ID!) {
+      rocket1: rocket (id: $rocketId1 ) {
+        ...RocketDesc
+      },
+      rocket2: rocket (id: $rocketId2 ) {
+        ...RocketDesc
+      }
+    }
+
+    fragment RocketDesc on Rocket {
+        id 
+        RocketName: name  
+        active
+        boosters
+        company
+        cost_per_launch
+        country
+    }
   
   INLINE FRAGMENTS
+      query getRocket($rocketId1: ID!, $rocketId2: ID!) {
+      rocket1: rocket (id: $rocketId1 ) {
+        ...RocketDesc
+        },
+        rocket2: rocket (id: $rocketId2 ) {
+          ...on Rocket {
+          id 
+          RocketName: name  
+          active
+          boosters
+          company
+          cost_per_launch
+          country
+           }
+        }
+      }
+   
+      this is useful when you query a fields with multiple types. in graphql you can query either an interface or a union of multiple types. Say a company has a Person type. The person can be either employee of vendor. So Person is an interface which implements employee and vendor. 
+      similarly in GitHub let's say User can have authorised user who can commit and users who can view the code. It is represented by UNION in graphql. Let's assume the requirement is to show author details. 
+      {
+        github {
+          repo(name:"graphql", ownerUsername: "facebook") {
+            commits {
+              message
+              author {
+                ... on GithubUser {
+                  login
+                }
+                ... on GithubCommitAuthor {
+                  email
+                }
+              }
+            }
+          }
+        }
+      }
+   
   
   MUTATIONS
-  
-  
+    update data
+    
+    mutation AddUser($usrObj: [users_insert_input!]!) {
+      insert_users(objects: $usrObj) {
+        affected_rows
+        returning	{
+          id
+          name
+          rocket
+          timestamp
+          twitter
+        }
+      }
+    }
+    
+    query variables
+    {
+      "usrObj": {
+        "id": "q23w423423wdwfwee",
+        "name": "Shawn D",
+        "rocket": "Falcon 10",
+        "timestamp": "2021-07-06T09:31:35.330535+00:00",
+        "twitter": "shawnd"
+      }
+    }
  
- 
+   initially got the error when I set variable type as "users_insert_input" without square brackets and exclamations
+  "message": "Variable \"$usrObj\" of type \"users_insert_input\" used in position expecting type \"[users_insert_input!]!\".",
  
  
  
